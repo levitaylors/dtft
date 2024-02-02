@@ -3,56 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Numbers</title>
-    <style>
-        body {
-            font-family: Helvetica, Arial, sans-serif;
-            font-size: 14px;
-        }
-
-        label {
-            font-size: 14px;
-        }
-
-        input {
-            font-family: Helvetica, Arial, sans-serif;
-            font-size: 14px;
-        }
-
-        button {
-            font-family: Helvetica, Arial, sans-serif;
-            font-size: 14px;
-        }
-
-        #result {
-            font-family: Helvetica, Arial, sans-serif;
-            font-size: 14px;
-        }
-    </style>
+    <title>ChatGPT Integration</title>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 </head>
 <body>
 
-<label for="number1">Enter Number 1:</label>
-<input type="number" id="number1" name="number1">
-
-<label for="number2">Enter Number 2:</label>
-<input type="number" id="number2" name="number2">
-
-<button type="button" onclick="addNumbers()">Calculate</button>
-
-<p id="result">Result: </p>
+<div>
+    <h1>ChatGPT Integration</h1>
+    <div>
+        <div>
+            <label for="user-input">User:</label>
+            <input type="text" id="user-input" placeholder="Type your message...">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+        <div id="chat-container" style="border: 1px solid #ccc; padding: 10px; margin-top: 10px; height: 300px; overflow-y: scroll;"></div>
+    </div>
+</div>
 
 <script>
-    function addNumbers() {
-        // Get the values from the input fields
-        var num1 = document.getElementById("number1").value;
-        var num2 = document.getElementById("number2").value;
+    const apiKey = 'YOUR_OPENAI_API_KEY'; // Replace with your actual OpenAI API key
 
-        // Convert the values to numbers and perform the addition
-        var sum = parseInt(num1) + parseInt(num2);
+    function sendMessage() {
+        const userInput = document.getElementById('user-input').value;
+        appendMessage('User', userInput);
 
-        // Display the result
-        document.getElementById("result").innerHTML = "Result: " + sum;
+        // Make a request to the OpenAI GPT-3.5 API
+        $.post('https://api.openai.com/v1/chat/completions', {
+            model: 'gpt-3.5-turbo',
+            messages: [
+                { role: 'system', content: 'You are a helpful assistant.' },
+                { role: 'user', content: userInput },
+            ],
+        }, function(response) {
+            const chatGPTResponse = response.choices[0].message.content;
+            appendMessage('ChatGPT', chatGPTResponse);
+        }).fail(function(error) {
+            console.error('Error:', error.responseText);
+        });
+    }
+
+    function appendMessage(role, content) {
+        const chatContainer = document.getElementById('chat-container');
+        const messageElement = document.createElement('div');
+        messageElement.innerHTML = `<strong>${role}:</strong> ${content}`;
+        chatContainer.appendChild(messageElement);
+
+        // Scroll to the bottom of the chat container
+        chatContainer.scrollTop = chatContainer.scrollHeight;
     }
 </script>
 
